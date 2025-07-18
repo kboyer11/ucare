@@ -182,10 +182,6 @@ function App() {
         return <TextTask />;
       case 'TextSurvey':
         return <TextSurvey onSubmit={(data) => handleTaskComplete('textTask', data)} />;
-      case 'VideoTask':
-        return <VideoTask />;
-      case 'VideoSurvey':
-        return <VideoSurvey onSubmit={(data) => handleTaskComplete('videoTask', data)} />;
       case 'FaceTask':
         return <FaceTask onSubmit={(data) => handleTaskComplete('faceTask', data)} />;
       default:
