@@ -5,6 +5,8 @@ import './App.css';
 import ConsentForm from './components/ConsentForm';
 import TextTask from './components/TextTask';
 import TextSurvey from './components/TextSurvey';
+import VideoTask from './components/VideoTask';
+import VideoSurvey from './components/VideoSurvey';
 import FaceTask from './components/FaceTask';
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
       'ConsentForm',
       'TextTask',
       'TextSurvey',
+      'VideoTask',
+      'VideoSurvey',
       'FaceTask',
     ];
     setTaskFiles(tasks);
@@ -180,6 +184,10 @@ function App() {
         return <TextTask />;
       case 'TextSurvey':
         return <TextSurvey onSubmit={(data) => handleTaskComplete('textTask', data)} />;
+      case 'VideoTask':
+        return <VideoTask />;
+      case 'VideoSurvey':
+        return <VideoSurvey onSubmit={(data) => handleTaskComplete('videoTask', data)} />;
       case 'FaceTask':
         return <FaceTask onSubmit={(data) => handleTaskComplete('faceTask', data)} />;
       default:
@@ -192,7 +200,7 @@ function App() {
   
   // Show Next Task button only for tasks that don't have their own Continue button
   const showNextButton = !isTaskComplete && 
-                         !['ConsentForm', 'TextSurvey', 'FaceTask'].includes(currentTaskName);
+                         !['ConsentForm', 'TextSurvey', 'VideoSurvey', 'FaceTask'].includes(currentTaskName);
 
   return (
     <div id="app" style={styles.appContainer}>
