@@ -28,8 +28,6 @@ function App() {
       'ConsentForm',
       'TextTask',
       'TextSurvey',
-      'VideoTask',
-      'VideoSurvey',
       'FaceTask',
     ];
     setTaskFiles(tasks);
@@ -137,10 +135,10 @@ function App() {
   const determineTextCorrectness = (answer) => {
     // Define correct answers for text comprehension
     const correctAnswers = {
-      'Adventure and heroism': true,
-      'Love and romance': false,
-      'Science and technology': false,
-      'Family relationships': false
+      'Historical': false,
+      'Adventure': true,
+      'Romance': false,
+      'Western': false
     };
     return correctAnswers[answer] || false;
   };
