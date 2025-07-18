@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 const TASKS = [
-  { gridSize: 3, trials: 12 },
+  { gridSize: 2, trials: 25 },
+  { gridSize: 3, trials: 25 },
 ];
 
 // Function to dynamically import all images from a folder
@@ -29,21 +30,13 @@ const FaceTask = ({ onSubmit }) => {
   const currentTask = TASKS[taskStage];
   const { gridSize, trials: maxTrials } = currentTask;
 
-  // Dynamically load all images from gender-specific folders
-  const rightMaleImagePaths = useMemo(() => 
-    importAll(require.context('../assets/images/rightmale', false, /\.(png|jpe?g|svg)$/)),
+  // Dynamically load all images from Right and Wrong folders
+  const rightImagePaths = useMemo(() => 
+    importAll(require.context('../assets/images/Right', false, /\.(png|jpe?g|svg)$/)),
     []
   );
-  const wrongMaleImagePaths = useMemo(() => 
-    importAll(require.context('../assets/images/wrongmale', false, /\.(png|jpe?g|svg)$/)),
-    []
-  );
-  const rightFemaleImagePaths = useMemo(() => 
-    importAll(require.context('../assets/images/rightfemale', false, /\.(png|jpe?g|svg)$/)),
-    []
-  );
-  const wrongFemaleImagePaths = useMemo(() => 
-    importAll(require.context('../assets/images/wrongfemale', false, /\.(png|jpe?g|svg)$/)),
+  const wrongImagePaths = useMemo(() => 
+    importAll(require.context('../assets/images/Wrong', false, /\.(png|jpe?g|svg)$/)),
     []
   );
 
@@ -58,30 +51,19 @@ const FaceTask = ({ onSubmit }) => {
 
   const generateNewGrid = useCallback(async () => {
     const totalCells = gridSize * gridSize;
-    
-    // Determine if this is a male or female trial
-    // First 6 trials (0-5) are male, next 6 trials (6-11) are female
-    const isMaleTrial = trial < 6;
-    
-    // Select the appropriate image sets based on gender
-    const rightImageSet = isMaleTrial ? rightMaleImagePaths : rightFemaleImagePaths;
-    const wrongImageSet = isMaleTrial ? wrongMaleImagePaths : wrongFemaleImagePaths;
-    
     // Start with wrong faces (Wrong images) - these should NOT be clicked
-    let newGrid = getRandomSubset(wrongImageSet, totalCells).map((src, i) => ({
+    let newGrid = getRandomSubset(wrongImagePaths, totalCells).map((src, i) => ({
       src,
       id: i + 1,
       isCorrect: false, // These are incorrect to click - avoid these
-      gender: isMaleTrial ? 'male' : 'female'
     }));
 
     // Replace one random position with a correct face (the target to find)
     const replacedIndex = Math.floor(Math.random() * totalCells);
     newGrid[replacedIndex] = {
-      src: rightImageSet[Math.floor(Math.random() * rightImageSet.length)],
+      src: rightImagePaths[Math.floor(Math.random() * rightImagePaths.length)],
       id: replacedIndex + 1,
       isCorrect: true, // This is the one to click - the correct face
-      gender: isMaleTrial ? 'male' : 'female'
     };
 
     setGrid(newGrid);
@@ -97,7 +79,7 @@ const FaceTask = ({ onSubmit }) => {
       // Still set to true to prevent indefinite waiting
       setImagesLoaded(true);
     }
-  }, [gridSize, rightMaleImagePaths, wrongMaleImagePaths, rightFemaleImagePaths, wrongFemaleImagePaths, trial]);
+  }, [gridSize, rightImagePaths, wrongImagePaths]);
 
   useEffect(() => {
     setShowCross(true);
@@ -137,15 +119,19 @@ const FaceTask = ({ onSubmit }) => {
       selectedRow: row,
       selectedColumn: column,
       correct: isCorrectClick ? 'Yes' : 'No',
-      gender: clickedImage.gender
     };
     setResults((prev) => [...prev, result]);
 
     const newTrial = trial + 1;
     if (newTrial >= maxTrials) {
-      setCompleted(true);
-      const finalResults = [...results, result];
-      onSubmit?.(finalResults);
+      if (taskStage === 0) {
+        setTaskStage(1);
+        setTrial(0);
+      } else {
+        setCompleted(true);
+        const finalResults = [...results, result];
+        onSubmit?.(finalResults);
+      }
     } else {
       setTrial(newTrial);
     }

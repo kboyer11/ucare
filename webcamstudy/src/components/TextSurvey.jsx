@@ -16,14 +16,14 @@ const TextSurvey = ({ onSubmit }) => {
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.form}>
         <h2 style={styles.title}>Text Comprehension Question</h2>
-        <h3 style={styles.question}>This passage is the best example of which literary genre?</h3>
+        <h3 style={styles.question}>What is the main theme of the passage you just read?</h3>
         
         <div style={styles.radioGroup}>
           {[
-            'Adventure',
-            'Romance', 
-            'Historical Fiction',
-            'Mystery'
+            'Adventure and heroism',
+            'Love and romance', 
+            'Science and technology',
+            'Family relationships'
           ].map(option => (
             <label key={option} style={styles.radioLabel}>
               <input

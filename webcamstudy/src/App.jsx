@@ -3,10 +3,10 @@ import './App.css';
 
 // Import task components
 import ConsentForm from './components/ConsentForm';
-import TextInstructions from './components/TextInstructions';
 import TextTask from './components/TextTask';
 import TextSurvey from './components/TextSurvey';
-import FaceInstructions from './components/FaceInstructions';
+import VideoTask from './components/VideoTask';
+import VideoSurvey from './components/VideoSurvey';
 import FaceTask from './components/FaceTask';
 
 function App() {
@@ -15,6 +15,7 @@ function App() {
   const [studyData, setStudyData] = useState({
     consent: null,
     textTask: null,
+    videoTask: null,
     faceTask: null
   });
 
@@ -25,10 +26,10 @@ function App() {
   const generateTaskSequence = () => {
     const tasks = [
       'ConsentForm',
-      'TextInstructions',
       'TextTask',
       'TextSurvey',
-      'FaceInstructions',
+      'VideoTask',
+      'VideoSurvey',
       'FaceTask',
     ];
     setTaskFiles(tasks);
@@ -69,6 +70,15 @@ function App() {
         task: "Text",
         response: studyData.textTask.selectedAnswer,
         isCorrect: determineTextCorrectness(studyData.textTask.selectedAnswer)
+      });
+    }
+
+    // Add video task response
+    if (studyData.videoTask?.selectedAnswer) {
+      jsonData.responses.push({
+        task: "Video",
+        response: studyData.videoTask.selectedAnswer,
+        isCorrect: determineVideoCorrectness(studyData.videoTask.selectedAnswer)
       });
     }
 
@@ -135,7 +145,17 @@ function App() {
     return correctAnswers[answer] || false;
   };
 
-
+  // Helper function to determine video task correctness
+  const determineVideoCorrectness = (answer) => {
+    // Define correct answers for video comprehension
+    const correctAnswers = {
+      'Sports performance': true,
+      'Educational content': false,
+      'Entertainment': false,
+      'Documentary footage': false
+    };
+    return correctAnswers[answer] || false;
+  };
 
   // Helper function to calculate overall face task correctness
   const calculateOverallFaceCorrectness = (results) => {
@@ -160,14 +180,14 @@ function App() {
     switch (taskName) {
       case 'ConsentForm':
         return <ConsentForm onSubmit={(data) => handleTaskComplete('consent', data)} />;
-      case 'TextInstructions':
-        return <TextInstructions onSubmit={() => incrementTask()} />;
       case 'TextTask':
         return <TextTask />;
       case 'TextSurvey':
         return <TextSurvey onSubmit={(data) => handleTaskComplete('textTask', data)} />;
-      case 'FaceInstructions':
-        return <FaceInstructions onSubmit={() => incrementTask()} />;
+      case 'VideoTask':
+        return <VideoTask />;
+      case 'VideoSurvey':
+        return <VideoSurvey onSubmit={(data) => handleTaskComplete('videoTask', data)} />;
       case 'FaceTask':
         return <FaceTask onSubmit={(data) => handleTaskComplete('faceTask', data)} />;
       default:
@@ -180,7 +200,7 @@ function App() {
   
   // Show Next Task button only for tasks that don't have their own Continue button
   const showNextButton = !isTaskComplete && 
-                         !['ConsentForm', 'TextSurvey', 'FaceTask'].includes(currentTaskName);
+                         !['ConsentForm', 'TextSurvey', 'VideoSurvey', 'FaceTask'].includes(currentTaskName);
 
   return (
     <div id="app" style={styles.appContainer}>
