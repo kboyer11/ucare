@@ -1,40 +1,49 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 const TEXTS = [
-  `Twas brillig, and the slithy toves
-Did gyre and gimble in the wabe:
-All mimsy were the borogoves,
-And the mome raths outgrabe.
+  `The boy awoke as the sun rose.
+There, in front of him,
+where the small stars had been
+the night before, was an endless
+row of date palms, stretching
+across the entire desert.
 
-"Beware the Jabberwock, my son!
-The jaws that bite, the claws that catch!
-Beware the Jubjub bird, and shun
-The frumious Bandersnatch!"
+"We've done it!" said the
+Englishman, who had also
+awakened early.
 
-He took his vorpal sword in hand;
-Long time the manxome foe he sought—
-So rested he by the Tumtum tree
-And stood awhile in thought.
+But the boy was quiet.
+He was at home with the
+silence of the desert, and
+he was content just to look
+at the trees.
 
-And, as in uffish thought he stood,
-The Jabberwock, with eyes of flame,
-Came whiffling through the tulgey wood,
-And burbled as it came!
+He still had a long way to go
+to reach the Pyramids, and
+someday this morning would
+just be a memory.
 
-One, two! One, two! And through and through
-The vorpal blade went snicker-snack!
-He left it dead, and with its head
-He went galumphing back.
+But this was the present moment—
+the party the camel driver had
+mentioned—and he wanted to
+live it as he did the lessons
+of his past and his dreams
+of the future.
 
-"And hast thou slain the Jabberwock?
-Come to my arms, my beamish boy!
-O frabjous day! Callooh! Callay!"
-He chortled in his joy.
+Although the vision of the date
+palms would someday be just
+a memory, right now it signified
+shade, water, and a refuge
+from the war.
 
-'Twas brillig, and the slithy toves
-Did gyre and gimble in the wabe:
-All mimsy were the borogoves,
-And the mome raths outgrabe.`,
+Yesterday, the camel's groan
+signaled danger, and now
+a row of date palms could
+herald a miracle.
+
+The world speaks many
+languages, the boy thought.`,
+  // Add your other texts here
 ];
 
 function pickRandomText() {
@@ -50,6 +59,7 @@ const TextTask = () => {
     const timer = setTimeout(() => {
       setShowCross(false);
     }, 1000);
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -73,7 +83,8 @@ const TextTask = () => {
       wordBlock.classList.add("word-block");
 
       if (isWord) {
-        wordBlock.setAttribute("data-re-aoi-name", `s${sentenceCount}-w${wordCount}`);
+        wordBlock.dataset.sentence = sentenceCount;
+        wordBlock.dataset.word = wordCount;
       }
 
       word.split('').forEach(char => {

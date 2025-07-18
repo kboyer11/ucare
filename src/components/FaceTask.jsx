@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 const TASKS = [
-  { gridSize: 2, trials: 25 },
-  { gridSize: 3, trials: 25 },
+  { gridSize: 3, trials: 12, maleTrials: 6, femaleTrials: 6 },
 ];
 
 // Function to dynamically import all images from a folder
@@ -12,6 +11,16 @@ function importAll(r) {
     images[item.replace('./', '')] = r(item);
   });
   return Object.values(images);
+}
+
+// Function to shuffle an array
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 function getRandomSubset(array, size) {
@@ -26,16 +35,27 @@ const FaceTask = ({ onSubmit }) => {
   const [showCross, setShowCross] = useState(true);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [results, setResults] = useState([]);
+  const [currentGender, setCurrentGender] = useState('male'); // Track current gender for alternating
+  const [maleTrialsCompleted, setMaleTrialsCompleted] = useState(0);
+  const [femaleTrialsCompleted, setFemaleTrialsCompleted] = useState(0);
 
   const currentTask = TASKS[taskStage];
-  const { gridSize, trials: maxTrials } = currentTask;
+  const { gridSize, trials: maxTrials, maleTrials, femaleTrials } = currentTask;
 
-  const rightImagePaths = useMemo(() =>
-    importAll(require.context('../assets/images/Right', false, /\.(png|jpe?g|svg)$/)),
+  const rightMaleImagePaths = useMemo(() =>
+    importAll(require.context('../assets/images/Rightmale', false, /\.(png|jpe?g|svg)$/)),
     []
   );
-  const wrongImagePaths = useMemo(() =>
-    importAll(require.context('../assets/images/Wrong', false, /\.(png|jpe?g|svg)$/)),
+  const rightFemaleImagePaths = useMemo(() =>
+    importAll(require.context('../assets/images/Rightfemale', false, /\.(png|jpe?g|svg)$/)),
+    []
+  );
+  const wrongMaleImagePaths = useMemo(() =>
+    importAll(require.context('../assets/images/Wrongmale', false, /\.(png|jpe?g|svg)$/)),
+    []
+  );
+  const wrongFemaleImagePaths = useMemo(() =>
+    importAll(require.context('../assets/images/Wrongfemale', false, /\.(png|jpe?g|svg)$/)),
     []
   );
 
@@ -50,17 +70,43 @@ const FaceTask = ({ onSubmit }) => {
 
   const generateNewGrid = useCallback(async () => {
     const totalCells = gridSize * gridSize;
-    let newGrid = getRandomSubset(wrongImagePaths, totalCells).map((src, i) => ({
-      src,
-      id: i + 1,
-      isCorrect: false,
-    }));
 
+    // Determine which gender to use for this trial
+    let useGender;
+    if (maleTrialsCompleted < maleTrials && femaleTrialsCompleted < femaleTrials) {
+      // If we haven't completed all trials of either gender, alternate or choose randomly
+      useGender = currentGender;
+    } else if (maleTrialsCompleted < maleTrials) {
+      // If we've completed all female trials but not male trials
+      useGender = 'male';
+    } else {
+      // If we've completed all male trials but not female trials
+      useGender = 'female';
+    }
+
+    // Select the appropriate image sets based on gender
+    const wrongImageSet = useGender === 'male' ? wrongMaleImagePaths : wrongFemaleImagePaths;
+    const rightImageSet = useGender === 'male' ? rightMaleImagePaths : rightFemaleImagePaths;
+
+    // Create grid with wrong (non-happy) faces
+    let newGrid = shuffleArray(wrongImageSet)
+      .slice(0, totalCells)
+      .map((src, i) => ({
+        src,
+        id: i + 1,
+        isCorrect: false,
+        gender: useGender
+      }));
+
+    // Replace one random position with a happy face (correct answer)
     const replacedIndex = Math.floor(Math.random() * totalCells);
+    const happyFace = rightImageSet[Math.floor(Math.random() * rightImageSet.length)];
+
     newGrid[replacedIndex] = {
-      src: rightImagePaths[Math.floor(Math.random() * rightImagePaths.length)],
+      src: happyFace,
       id: replacedIndex + 1,
       isCorrect: true,
+      gender: useGender
     };
 
     setGrid(newGrid);
@@ -74,7 +120,7 @@ const FaceTask = ({ onSubmit }) => {
       console.error('Error loading images:', error);
       setImagesLoaded(true);
     }
-  }, [gridSize, rightImagePaths, wrongImagePaths]);
+  }, [gridSize, rightMaleImagePaths, rightFemaleImagePaths, wrongMaleImagePaths, wrongFemaleImagePaths, currentGender, maleTrialsCompleted, femaleTrialsCompleted, maleTrials, femaleTrials]);
 
   useEffect(() => {
     setShowCross(true);
@@ -96,6 +142,7 @@ const FaceTask = ({ onSubmit }) => {
 
     const clickedImage = grid[index];
     const isCorrectClick = clickedImage?.isCorrect === true;
+    const imageGender = clickedImage?.gender;
 
     const row = Math.floor(index / gridSize) + 1;
     const column = (index % gridSize) + 1;
@@ -106,19 +153,24 @@ const FaceTask = ({ onSubmit }) => {
       selectedRow: row,
       selectedColumn: column,
       correct: isCorrectClick ? 'Yes' : 'No',
+      gender: imageGender
     };
     setResults((prev) => [...prev, result]);
 
+    // Update gender-specific trial counters
+    if (imageGender === 'male') {
+      setMaleTrialsCompleted(prev => prev + 1);
+      setCurrentGender('female'); // Switch to female for next trial
+    } else {
+      setFemaleTrialsCompleted(prev => prev + 1);
+      setCurrentGender('male'); // Switch to male for next trial
+    }
+
     const newTrial = trial + 1;
-    if (newTrial >= maxTrials) {
-      if (taskStage === 0) {
-        setTaskStage(1);
-        setTrial(0);
-      } else {
-        setCompleted(true);
-        const finalResults = [...results, result];
-        onSubmit?.(finalResults);
-      }
+    if (newTrial >= maxTrials || (maleTrialsCompleted + femaleTrialsCompleted + 1) >= maxTrials) {
+      setCompleted(true);
+      const finalResults = [...results, result];
+      onSubmit?.(finalResults);
     } else {
       setTrial(newTrial);
     }
@@ -181,7 +233,7 @@ const FaceTask = ({ onSubmit }) => {
                     className="grid-item"
                     data-id={image.id}
                     data-correct={image.isCorrect ? 'T' : 'F'}
-                    data-re-aoi-name={`${row}-${column}-${image.isCorrect ? 'correct' : 'incorrect'}`}
+                    data-re-aoi-name={`${row}-${column}-${image.gender}-${image.isCorrect ? 'happy' : 'neutral'}`}
                     alt="Game"
                     style={{
                       objectFit: 'cover',
