@@ -28,6 +28,8 @@ function App() {
       'ConsentForm',
       'TextTask',
       'TextSurvey',
+      'VideoTask',
+      'VideoSurvey',
       'FaceTask',
     ];
     setTaskFiles(tasks);
@@ -135,10 +137,10 @@ function App() {
   const determineTextCorrectness = (answer) => {
     // Define correct answers for text comprehension
     const correctAnswers = {
-      'Historical': false,
-      'Adventure': true,
-      'Romance': false,
-      'Western': false
+      'Adventure and heroism': true,
+      'Love and romance': false,
+      'Science and technology': false,
+      'Family relationships': false
     };
     return correctAnswers[answer] || false;
   };
@@ -182,6 +184,10 @@ function App() {
         return <TextTask />;
       case 'TextSurvey':
         return <TextSurvey onSubmit={(data) => handleTaskComplete('textTask', data)} />;
+      case 'VideoTask':
+        return <VideoTask />;
+      case 'VideoSurvey':
+        return <VideoSurvey onSubmit={(data) => handleTaskComplete('videoTask', data)} />;
       case 'FaceTask':
         return <FaceTask onSubmit={(data) => handleTaskComplete('faceTask', data)} />;
       default:
