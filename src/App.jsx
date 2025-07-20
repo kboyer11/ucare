@@ -8,6 +8,7 @@ import TextSurvey from './components/TextSurvey';
 import VideoTask from './components/VideoTask';
 import VideoSurvey from './components/VideoSurvey';
 import FaceTask from './components/FaceTask';
+import Instructions from './components/Instructions';
 
 function App() {
   const [currentTask, setCurrentTask] = useState(0);
@@ -26,10 +27,12 @@ function App() {
   const generateTaskSequence = () => {
     const tasks = [
       'ConsentForm',
+      'TextInstructions',
       'TextTask',
       'TextSurvey',
       // 'VideoTask', // Hidden
       // 'VideoSurvey', // Hidden
+      'FaceInstructions',
       'FaceTask',
     ];
     setTaskFiles(tasks);
@@ -180,6 +183,20 @@ function App() {
     switch (taskName) {
       case 'ConsentForm':
         return <ConsentForm onSubmit={(data) => handleTaskComplete('consent', data)} />;
+      case 'TextInstructions':
+        return (
+          <Instructions 
+            title="Instructions"
+            content={
+              <div>
+                <p>You will be presented with a passage of text to read.</p>
+                <p>After reading the passage, you will be asked a question about the text.</p>
+                <p>Please read carefully and answer to the best of your ability.</p>
+              </div>
+            }
+            onContinue={incrementTask}
+          />
+        );
       case 'TextTask':
         return <TextTask />;
       case 'TextSurvey':
@@ -188,6 +205,21 @@ function App() {
         return <VideoTask />;
       case 'VideoSurvey':
         return <VideoSurvey onSubmit={(data) => handleTaskComplete('videoTask', data)} />;
+      case 'FaceInstructions':
+        return (
+          <Instructions 
+            title="Instructions"
+            content={
+              <div>
+                <p>You will see a grid of images with faces.</p>
+                <p>Your task is to identify the face that looks the happiest from the others.</p>
+                <p>Click on the happiest face, and then a new grid will appear.</p>
+                <p>There will be multiple rounds of this task.</p>
+              </div>
+            }
+            onContinue={incrementTask}
+          />
+        );
       case 'FaceTask':
         return <FaceTask onSubmit={(data) => handleTaskComplete('faceTask', data)} />;
       default:
