@@ -28,8 +28,8 @@ function App() {
       'ConsentForm',
       'TextTask',
       'TextSurvey',
-      'VideoTask',
-      'VideoSurvey',
+      // 'VideoTask', // Hidden
+      // 'VideoSurvey', // Hidden
       'FaceTask',
     ];
     setTaskFiles(tasks);
