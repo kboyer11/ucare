@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "https://kboyer11.github.io/ucare/static/css/main.3de88975.css",
-    "main.js": "https://kboyer11.github.io/ucare/static/js/main.8377c488.js",
+    "main.js": "https://kboyer11.github.io/ucare/static/js/main.f22cceb6.js",
     "static/js/453.e44939a0.chunk.js": "https://kboyer11.github.io/ucare/static/js/453.e44939a0.chunk.js",
     "static/media/clip2.mp4": "https://kboyer11.github.io/ucare/static/media/clip2.1e6e426f2cdb61fe74ec.mp4",
     "static/media/clip3.mp4": "https://kboyer11.github.io/ucare/static/media/clip3.3341365941d9bce4b98b.mp4",
@@ -70,11 +70,11 @@
     "static/media/image-8.jpg": "https://kboyer11.github.io/ucare/static/media/image-8.e491c615c0e21b7007f5.jpg",
     "index.html": "https://kboyer11.github.io/ucare/index.html",
     "main.3de88975.css.map": "https://kboyer11.github.io/ucare/static/css/main.3de88975.css.map",
-    "main.8377c488.js.map": "https://kboyer11.github.io/ucare/static/js/main.8377c488.js.map",
+    "main.f22cceb6.js.map": "https://kboyer11.github.io/ucare/static/js/main.f22cceb6.js.map",
     "453.e44939a0.chunk.js.map": "https://kboyer11.github.io/ucare/static/js/453.e44939a0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3de88975.css",
-    "static/js/main.8377c488.js"
+    "static/js/main.f22cceb6.js"
   ]
 }

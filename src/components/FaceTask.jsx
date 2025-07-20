@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 const TASKS = [
-  { gridSize: 2, trials: 25 },
-  { gridSize: 3, trials: 25 },
+  { gridSize: 3, trials: 12 }, // 12 3x3 grids only
 ];
 
 // Function to dynamically import all images from a folder
@@ -30,12 +29,21 @@ const FaceTask = ({ onSubmit }) => {
   const currentTask = TASKS[taskStage];
   const { gridSize, trials: maxTrials } = currentTask;
 
-  const rightImagePaths = useMemo(() =>
-    importAll(require.context('../assets/images/Right', false, /\.(png|jpe?g|svg)$/)),
+  // Load male and female images separately
+  const rightMaleImages = useMemo(() =>
+    importAll(require.context('../assets/images/Rightmale', false, /\.(png|jpe?g|svg)$/)),
     []
   );
-  const wrongImagePaths = useMemo(() =>
-    importAll(require.context('../assets/images/Wrong', false, /\.(png|jpe?g|svg)$/)),
+  const wrongMaleImages = useMemo(() =>
+    importAll(require.context('../assets/images/Wrongmale', false, /\.(png|jpe?g|svg)$/)),
+    []
+  );
+  const rightFemaleImages = useMemo(() =>
+    importAll(require.context('../assets/images/Rightfemale', false, /\.(png|jpe?g|svg)$/)),
+    []
+  );
+  const wrongFemaleImages = useMemo(() =>
+    importAll(require.context('../assets/images/Wrongfemale', false, /\.(png|jpe?g|svg)$/)),
     []
   );
 
@@ -50,15 +58,26 @@ const FaceTask = ({ onSubmit }) => {
 
   const generateNewGrid = useCallback(async () => {
     const totalCells = gridSize * gridSize;
-    let newGrid = getRandomSubset(wrongImagePaths, totalCells).map((src, i) => ({
+    
+    // Determine if this trial should use male or female images
+    // Alternating pattern: trials 0,1 = male, 2,3 = female, 4,5 = male, etc.
+    const isMaleSet = Math.floor(trial / 2) % 2 === 0;
+    
+    // Select appropriate image sets based on gender
+    const rightImages = isMaleSet ? rightMaleImages : rightFemaleImages;
+    const wrongImages = isMaleSet ? wrongMaleImages : wrongFemaleImages;
+    
+    // Create grid with wrong images
+    let newGrid = getRandomSubset(wrongImages, totalCells).map((src, i) => ({
       src,
       id: i + 1,
       isCorrect: false,
     }));
 
+    // Replace one random position with a correct image
     const replacedIndex = Math.floor(Math.random() * totalCells);
     newGrid[replacedIndex] = {
-      src: rightImagePaths[Math.floor(Math.random() * rightImagePaths.length)],
+      src: rightImages[Math.floor(Math.random() * rightImages.length)],
       id: replacedIndex + 1,
       isCorrect: true,
     };
@@ -74,7 +93,7 @@ const FaceTask = ({ onSubmit }) => {
       console.error('Error loading images:', error);
       setImagesLoaded(true);
     }
-  }, [gridSize, rightImagePaths, wrongImagePaths]);
+  }, [gridSize, trial, rightMaleImages, wrongMaleImages, rightFemaleImages, wrongFemaleImages]);
 
   useEffect(() => {
     setShowCross(true);
@@ -100,9 +119,13 @@ const FaceTask = ({ onSubmit }) => {
     const row = Math.floor(index / gridSize) + 1;
     const column = (index % gridSize) + 1;
 
+    // Determine gender for this trial
+    const isMaleSet = Math.floor(trial / 2) % 2 === 0;
+    
     const result = {
       gridSize,
       trial: trial + 1,
+      gender: isMaleSet ? 'male' : 'female',
       selectedRow: row,
       selectedColumn: column,
       correct: isCorrectClick ? 'Yes' : 'No',
@@ -111,14 +134,9 @@ const FaceTask = ({ onSubmit }) => {
 
     const newTrial = trial + 1;
     if (newTrial >= maxTrials) {
-      if (taskStage === 0) {
-        setTaskStage(1);
-        setTrial(0);
-      } else {
-        setCompleted(true);
-        const finalResults = [...results, result];
-        onSubmit?.(finalResults);
-      }
+      setCompleted(true);
+      const finalResults = [...results, result];
+      onSubmit?.(finalResults);
     } else {
       setTrial(newTrial);
     }
@@ -170,7 +188,9 @@ const FaceTask = ({ onSubmit }) => {
               Completed!
             </p>
           ) : (
-            <div className="grid" style={gridStyle}>
+            <>
+
+              <div className="grid" style={gridStyle}>
               {grid.map((image, idx) => {
                 const row = Math.floor(idx / gridSize) + 1;
                 const column = (idx % gridSize) + 1;
@@ -196,15 +216,16 @@ const FaceTask = ({ onSubmit }) => {
                 );
               })}
             </div>
-          )}
-        </>
-      )}
+          </>
+        )}
+      </>
+    )}
 
-      <style>{`
-        .grid-item:hover {
-          border-color: #3498db;
-        }
-      `}</style>
+    <style>{`
+      .grid-item:hover {
+        border-color: #3498db;
+      }
+    `}</style>
     </div>
   );
 };
